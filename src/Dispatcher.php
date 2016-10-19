@@ -1,0 +1,270 @@
+<?php
+namespace Gungnir\Framework;
+
+use \Gungnir\Core\Kernel;
+use \Gungnir\Core\Container;
+use \Gungnir\Core\Config;
+use \Gungnir\HTTP\{Request,Response,Route,HttpException};
+use \Gungnir\Event\EventDispatcher;
+
+class Dispatcher
+{
+    const CONTAINER_KERNEL_NAME = 'Application';
+    const CONTAINER_EVENT_DISPATCHER_NAME = 'EventDispatcher';
+
+    /** @var Container **/
+    private $container = null;
+
+    /** @var String **/
+    private $root = null;
+
+    /**
+     * Constructor
+     *
+     * @param Container $container  IoC that dispatcher uses to wrap the application
+     * @param String    $root       Absolute path to the project root
+     */
+    public function __construct(Container $container, String $root = null)
+    {
+        $this->container = $container;
+        $this->root = $root;
+    }
+
+    /**
+     * Get the Kernel instance from registered container
+     * or creates and injects one into the container and
+     * returns the new instance
+     *
+     * @return Kernel
+     */
+    public function getKernel()
+    {
+        if ($this->getContainer()->has(self::CONTAINER_KERNEL_NAME)) {
+            return $this->getContainer()->get(self::CONTAINER_KERNEL_NAME);
+        }
+
+        $kernel = new Kernel($this->root);
+        $this->getContainer()->store(self::CONTAINER_KERNEL_NAME, $kernel);
+        return $this->getKernel();
+    }
+
+    /**
+     * Get the EventDispatcher instance from registered container
+     * or creates and injects one into the container and
+     * returns the new instance
+     *
+     * @return EventDispatcher
+     */
+    public function getEventDispatcher()
+    {
+        if ($this->getContainer()->has(self::CONTAINER_EVENT_DISPATCHER_NAME)) {
+            return $this->getContainer()->get(self::CONTAINER_EVENT_DISPATCHER_NAME);
+        }
+
+        $eventDispatcher = new EventDispatcher;
+        $this->getContainer()->store(self::CONTAINER_EVENT_DISPATCHER_NAME, $eventDispatcher);
+        return $this->getEventDispatcher();
+    }
+
+    /**
+     * Get the container from dispatcher
+     *
+     * @return Container
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
+     * Set container to dispatcher
+     *
+     * @return Container
+     */
+    public function setContainer(Container $container)
+    {
+        $this->container = $container;
+        return $this;
+    }
+
+    /**
+     * Runs the application based on an incoming request.
+     * Parses incoming URL and matches against registered
+     * routes to find which controller and action to be called
+     * which in return creates and sends back a Response object
+     * that get's echoed out.
+     *
+     * @return Response
+     */
+    public function run() : Response
+    {
+        Container::instance($this->getContainer());
+
+        $this->loadApplicationEventListeners();
+
+        $this->locateRoute();
+        $this->locateRequest();
+        $this->locateController();
+        $this->locateAction();
+
+        return $this->runController();
+    }
+
+    /**
+     * Identifies and retrieves a route object based
+     * on an incoming URL.
+     *
+     * @param  String $uri URL that will be parsed
+     * @return Route      Route found
+     */
+    public function getRoute(String $uri = null) : Route
+    {
+        $uri = $uri ?? $_SERVER['REQUEST_URI'];
+        return Route::find($uri);
+    }
+
+    /**
+     * Builds up a request object based on a given Route
+     * and then returns it.
+     *
+     * @param  Route  $route The incoming route
+     * @return Request
+     */
+    public function getRequest(Route $route) : Request
+    {
+        $request = new Request($_GET, $_POST, $route->parameters(), $_COOKIE, $_FILES, $_SERVER);
+        return $request;
+    }
+
+    /**
+     * Retrieves action name and modifies to be a valid callable
+     * action name.
+     *
+     * @param  Request  $request Incoming request
+     * @param  Route    $route   Incoming route
+     *
+     * @return String            Valid action name to be called inside controller
+     */
+    public function getAction(Request $request, Route $route) : String
+    {
+        $method = $request->server()->get('REQUEST_METHOD');
+
+        if (empty($method)) {
+            $method = $_SERVER['REQUEST_METHOD'];
+        }
+
+        return strtolower($method) . $route->action();
+    }
+
+    private function loadApplicationEventListeners()
+    {
+        $appRoot = $this->getKernel()->getApplicationPath();
+        $eventListeners = $this->getKernel()->loadFile($appRoot . 'config/EventListeners.php');
+        if (empty($eventListeners) !== true) {
+            $this->getEventDispatcher()->registerEventListeners($eventListeners);
+        }
+        $this->getEventDispatcher()->emit('gungnir.framework.loadapplicationeventlisteners.done', ['eventObject' => $this]);
+    }
+
+    /**
+     * Creates a controller object and stores it inside
+     * the application container
+     *
+     * @throws HttpException
+     * @return void
+     */
+    private function locateController()
+    {
+        $controller = $this->getContainer()->get('route')->controller();
+        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locatecontroller.name', ['eventData' => &$controller]);
+        $this->getContainer()->store('controller_name', $controller);
+
+        if (class_exists($controller)) {
+            $controller = new $controller;
+            $controller->setContainer($this->getContainer());
+            $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locatecontroller.object', ['eventObject' => $controller]);
+            $this->getContainer()->store('controller', $controller);
+        } else {
+            throw new HttpException('Controller '.$controller.' does not exist.');
+        }
+    }
+
+    /**
+     * Locates route and stores it inside application container
+     *
+     * @throws HttpException
+     *
+     * @return void
+     */
+    private function locateRoute()
+    {
+        $uri = $this->getContainer()->has('uri') ? $this->getContainer()->get('uri') : null;
+
+        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locateroute.uri', ['eventData' => &$uri]);
+
+        $route = $this->getRoute($uri);
+
+        if (empty($route)) {
+            throw new HttpException("No matching route was found for: ".$_SERVER['REQUEST_URI']);
+        }
+
+        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locateroute.route', ['eventObject' => $route]);
+        $this->getContainer()->store('route', $route);
+    }
+
+    /**
+     * Locates and stores request object in application container
+     *
+     * @return void
+     */
+    private function locateRequest()
+    {
+        $request = $this->getRequest($this->getContainer()->get('route'));
+        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locaterequest.request', ['eventObject' => $request]);
+        $this->getContainer()->store('request', $request);
+    }
+
+    /**
+     * Locates and stores action to be called inside application container
+     *
+     * @return void
+     */
+    private function locateAction()
+    {
+        $action = $this->getAction($this->getContainer()->get('request'), $this->getContainer()->get('route'));
+        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locateaction.action', ['eventData' => &$action]);
+        $this->getContainer()->store('action', $action);
+    }
+
+    /**
+     * Executes action for controller for current request
+     *
+     * @throws HttpException
+     * @return Response
+     */
+    private function runController() : Response
+    {
+        $controller = $this->getContainer()->get('controller');
+        $action     = $this->getContainer()->get('action');
+        $request    = $this->getContainer()->get('request');
+
+        $response = $controller->before();
+        $this->getEventDispatcher()->emit('gungnir.framework.dispatcher.runcontroller.before.response', ['responseObject' => $response]);
+        if (empty($response)) {
+            if (method_exists($controller, $action)) {
+                $response = call_user_func_array([$controller, $action], [$request]);
+            } else {
+                throw new HttpException('Action '.$action.' does not exist.');
+            }
+        }
+
+        $this->getEventDispatcher()->emit('gungnir.framework.dispatcher.runcontroller.action.response', ['responseObject' => $response]);
+
+        $this->getContainer()->store('response', $response);
+
+        $controller->after();
+
+        return $response;
+    }
+
+}
