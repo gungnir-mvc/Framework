@@ -15,11 +15,12 @@ class Model
      *
      * @param string $requirement The requirement
      *
-     * @return self
+     * @return Model
      */
     public function addRequirement(String $requirement)
     {
         $this->required[] = $requirement;
+        return $this;
     }
 
     /**
@@ -39,7 +40,7 @@ class Model
      *
      * @return bool Valid or not
      */
-    public function validateModel(Model $model)
+    public function isModelValid(Model $model)
     {
         $valid = true;
         foreach ($this->getRequirements() as $requirement) {

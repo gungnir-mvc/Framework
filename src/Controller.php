@@ -48,5 +48,4 @@ class Controller
     {
         return $this->container;
     }
-
 }

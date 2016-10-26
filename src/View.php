@@ -32,8 +32,8 @@ class View
     private $data = array();
 
     /**
-     * @param String $file            Path to view file
-     * @param String $fallbackPath    an Absolute path to a fallback folder to load from if primary is not found
+     * @param String      $file            Path to view file
+     * @param String|null $fallbackPath    an Absolute path to a fallback folder to load from if primary is not found
      */
     public function __construct(String $file, String $fallbackPath = null)
     {
@@ -89,6 +89,7 @@ class View
     public function setBasePath(String $basePath)
     {
         $this->basePath = $basePath;
+        return $this;
     }
 
     /**
@@ -133,7 +134,7 @@ class View
     public static function addGlobal(String $name, $value)
     {
         if (static::hasGlobal($name)) {
-            throw new \Exception("Cant add global view variable since it already exists.");
+            throw new \Exception('Cant add global view variable since it already exists.');
         }
 
         static::setGlobal($name, $value);
@@ -237,12 +238,12 @@ class View
      * scope and if not found checks in fallback directory if one is defined.
      *
      * @throws ViewException
-     * @return void
+     * @return string
      */
     public function getFilePath()
     {
-        $file = $this->getFile() . $this->fileExtension;
-        $appPath = $this->getBasePath() . $file;
+        $file         = $this->getFile() . $this->fileExtension;
+        $appPath      = $this->getBasePath() . $file;
         $fallbackPath = $this->getFallbackPath() . $file;
 
         if (file_exists($appPath)) {
@@ -261,7 +262,7 @@ class View
      */
     public function render() : String
     {
-        $globals = View::globals();
+        $globals  = View::globals();
         $filePath = $this->getFilePath();
         ob_start();
         extract($globals);
@@ -271,6 +272,4 @@ class View
         ob_end_clean();
         return $result;
     }
-
-
 }
