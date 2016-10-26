@@ -270,7 +270,7 @@ class Dispatcher
         $request    = $this->getContainer()->get('request');
         $response   = $controller->before();
 
-        $eventname  = 'gungnir.framework.dispatcher.runcontroller.before.response';
+        $eventName  = 'gungnir.framework.dispatcher.runcontroller.before.response';
         $this->getEventDispatcher()->emit($eventName, ['responseObject' => $response]);
 
         if (empty($response)) {

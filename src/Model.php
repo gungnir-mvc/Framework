@@ -58,6 +58,6 @@ class Model
      */
     public function validate()
     {
-        return $this->validateModel($this);
+        return $this->isModelValid($this);
     }
 }
