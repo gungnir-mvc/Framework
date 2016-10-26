@@ -262,10 +262,11 @@ class View
     public function render() : String
     {
         $globals = View::globals();
+        $filePath = $this->getFilePath();
         ob_start();
         extract($globals);
         extract($this->data);
-        require $this->getFilePath();
+        require $filePath;
         $result = ob_get_contents();
         ob_end_clean();
         return $result;
@@ -273,5 +274,3 @@ class View
 
 
 }
-
-class ViewException extends \Exception {}

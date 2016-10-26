@@ -33,15 +33,6 @@ class Model
     }
 
     /**
-     * Validates an array of data against this models requirements
-     *
-     * @param array $data The data to validate
-     *
-     * @return bool Valid or not
-     */
-    public function validateArray(array $data) {}
-
-    /**
      * Validates a model against this models requirements
      *
      * @param Model $model The model to validate

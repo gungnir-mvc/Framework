@@ -2,7 +2,7 @@
 namespace Gungnir\Framework\Tests;
 
 use org\bovigo\vfs\vfsStream;
-use \Gungnir\Framework\View;
+use \Gungnir\Framework\{View, ViewException};
 
 class ViewTest extends \PHPUnit_Framework_TestCase
 {
@@ -17,6 +17,15 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $viewContent = $view->render();
 
         $this->assertEquals($expectedViewContent, $viewContent);
+    }
+
+    /**
+     * @expectedException \Gungnir\Framework\ViewException
+     */
+    public function testItThrowsAnViewExceptionIfViewFileIsMissing()
+    {
+        $view = new View('foobar');
+        $view->render();
     }
 
     public function testItCanLoadViewFileFromFallbackPath()
