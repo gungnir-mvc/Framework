@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/gungnir-mvc/Core.git",
-                "reference": "0f83abe98357bed03fa1f10aae257fdb439a837e"
+                "reference": "b65dea66d3dcfb3d72de8090a6555a871e680fb4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gungnir-mvc/Core/zipball/0f83abe98357bed03fa1f10aae257fdb439a837e",
-                "reference": "0f83abe98357bed03fa1f10aae257fdb439a837e",
+                "url": "https://api.github.com/repos/gungnir-mvc/Core/zipball/b65dea66d3dcfb3d72de8090a6555a871e680fb4",
+                "reference": "b65dea66d3dcfb3d72de8090a6555a871e680fb4",
                 "shasum": ""
             },
             "require-dev": {
@@ -40,7 +40,7 @@
                 "source": "https://github.com/gungnir-mvc/Core/tree/master",
                 "issues": "https://github.com/gungnir-mvc/Core/issues"
             },
-            "time": "2016-10-19 11:08:36"
+            "time": "2016-10-27 05:31:51"
         },
         {
             "name": "gungnir-mvc/event",
@@ -48,12 +48,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/gungnir-mvc/Event.git",
-                "reference": "754c8b8c63ab65c352642457b7fa204ba1fc6f59"
+                "reference": "bd837c5165b31feb3d38b77b9d93d0ae4e780c1c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gungnir-mvc/Event/zipball/754c8b8c63ab65c352642457b7fa204ba1fc6f59",
-                "reference": "754c8b8c63ab65c352642457b7fa204ba1fc6f59",
+                "url": "https://api.github.com/repos/gungnir-mvc/Event/zipball/bd837c5165b31feb3d38b77b9d93d0ae4e780c1c",
+                "reference": "bd837c5165b31feb3d38b77b9d93d0ae4e780c1c",
                 "shasum": ""
             },
             "require-dev": {
@@ -74,7 +74,7 @@
                 "source": "https://github.com/gungnir-mvc/Event/tree/master",
                 "issues": "https://github.com/gungnir-mvc/Event/issues"
             },
-            "time": "2016-10-17 17:59:39"
+            "time": "2016-10-27 21:00:56"
         },
         {
             "name": "gungnir-mvc/http",
@@ -82,12 +82,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/gungnir-mvc/Http.git",
-                "reference": "48ab713e2d1a7ae337f2cb133c39cde2302d8793"
+                "reference": "0339a9e1453a4f9569980fadf353fb0709faeefb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gungnir-mvc/Http/zipball/48ab713e2d1a7ae337f2cb133c39cde2302d8793",
-                "reference": "48ab713e2d1a7ae337f2cb133c39cde2302d8793",
+                "url": "https://api.github.com/repos/gungnir-mvc/Http/zipball/0339a9e1453a4f9569980fadf353fb0709faeefb",
+                "reference": "0339a9e1453a4f9569980fadf353fb0709faeefb",
                 "shasum": ""
             },
             "require-dev": {
@@ -108,7 +108,7 @@
                 "source": "https://github.com/gungnir-mvc/Http/tree/master",
                 "issues": "https://github.com/gungnir-mvc/Http/issues"
             },
-            "time": "2016-10-17 18:00:22"
+            "time": "2016-10-27 05:57:26"
         }
     ],
     "packages-dev": [
@@ -1363,16 +1363,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.1.5",
+            "version": "v3.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "368b9738d4033c8b93454cb0dbd45d305135a6d3"
+                "reference": "7ff51b06c6c3d5cc6686df69004a42c69df09e27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/368b9738d4033c8b93454cb0dbd45d305135a6d3",
-                "reference": "368b9738d4033c8b93454cb0dbd45d305135a6d3",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/7ff51b06c6c3d5cc6686df69004a42c69df09e27",
+                "reference": "7ff51b06c6c3d5cc6686df69004a42c69df09e27",
                 "shasum": ""
             },
             "require": {
@@ -1408,7 +1408,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2016-09-25 08:27:07"
+            "time": "2016-10-24 18:41:13"
         },
         {
             "name": "webmozart/assert",

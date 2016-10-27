@@ -5,7 +5,7 @@ use \Gungnir\Core\Kernel;
 use \Gungnir\Core\Container;
 use \Gungnir\Core\Config;
 use \Gungnir\HTTP\{Request,Response,Route,HttpException};
-use \Gungnir\Event\EventDispatcher;
+use \Gungnir\Event\{EventDispatcher, GenericEventObject};
 
 class Dispatcher
 {
@@ -174,7 +174,7 @@ class Dispatcher
         }
 
         $eventName = 'gungnir.framework.loadapplicationeventlisteners.done';
-        $this->getEventDispatcher()->emit($eventName, ['eventObject' => $this]);
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($this));
     }
 
     /**
@@ -189,7 +189,7 @@ class Dispatcher
         $controller = $this->getContainer()->get('route')->controller();
         $eventName  = 'gungnir.http.dispatcher.locatecontroller.name';
 
-        $this->getEventDispatcher()->emit($eventName, ['eventData' => &$controller]);
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject( $controller));
         $this->getContainer()->store('controller_name', $controller);
 
         if (class_exists($controller)) {
@@ -198,7 +198,7 @@ class Dispatcher
 
             $eventName = 'gungnir.http.dispatcher.locatecontroller.object';
 
-            $this->getEventDispatcher()->emit($eventName, ['eventObject' => $controller]);
+            $this->getEventDispatcher()->emit($eventName, new GenericEventObject($controller));
             $this->getContainer()->store('controller', $controller);
 
         } else {
@@ -218,17 +218,17 @@ class Dispatcher
         $uri       = $this->getContainer()->has('uri') ? $this->getContainer()->get('uri') : null;
         $eventName = 'gungnir.http.dispatcher.locateroute.uri';
 
-        $this->getEventDispatcher()->emit($eventName, ['eventData' => &$uri]);
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($uri));
 
         $route = $this->getRoute($uri);
 
         if (empty($route)) {
-            throw new HttpException('No matching route was found for: ' . $_SERVER['REQUEST_URI']);
+            throw new HttpException('No matching route was found for: ' . $uri);
         }
 
         $eventName = 'gungnir.http.dispatcher.locateroute.route';
 
-        $this->getEventDispatcher()->emit($eventName, ['eventObject' => $route]);
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($route));
         $this->getContainer()->store('route', $route);
     }
 
@@ -240,7 +240,7 @@ class Dispatcher
     private function locateRequest()
     {
         $request = $this->getRequest($this->getContainer()->get('route'));
-        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locaterequest.request', ['eventObject' => $request]);
+        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locaterequest.request', new GenericEventObject($request));
         $this->getContainer()->store('request', $request);
     }
 
@@ -252,7 +252,7 @@ class Dispatcher
     private function locateAction()
     {
         $action = $this->getAction($this->getContainer()->get('request'), $this->getContainer()->get('route'));
-        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locateaction.action', ['eventData' => &$action]);
+        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locateaction.action', new GenericEventObject($action));
         $this->getContainer()->store('action', $action);
     }
 
@@ -271,7 +271,7 @@ class Dispatcher
         $response   = $controller->before($request);
 
         $eventName  = 'gungnir.framework.dispatcher.runcontroller.before.response';
-        $this->getEventDispatcher()->emit($eventName, ['responseObject' => $response]);
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($response));
 
         if (empty($response)) {
             if (method_exists($controller, $action)) {
@@ -283,7 +283,7 @@ class Dispatcher
 
         $eventName = 'gungnir.framework.dispatcher.runcontroller.action.response';
 
-        $this->getEventDispatcher()->emit($eventName, ['responseObject' => $response]);
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($response));
 
         $this->getContainer()->store('response', $response);
 
