@@ -170,7 +170,7 @@ class Dispatcher
         $eventListeners = $this->getKernel()->loadFile($appRoot . 'config/EventListeners.php');
 
         if (empty($eventListeners) !== true && is_array($eventListeners)) {
-            $this->getEventDispatcher()->registerEventListeners($eventListeners);
+            $this->getEventDispatcher()->registerListeners($eventListeners);
         }
 
         $eventName = 'gungnir.framework.loadapplicationeventlisteners.done';
@@ -268,7 +268,7 @@ class Dispatcher
         $controller = $this->getContainer()->get('controller');
         $action     = $this->getContainer()->get('action');
         $request    = $this->getContainer()->get('request');
-        $response   = $controller->before();
+        $response   = $controller->before($request);
 
         $eventName  = 'gungnir.framework.dispatcher.runcontroller.before.response';
         $this->getEventDispatcher()->emit($eventName, ['responseObject' => $response]);
@@ -287,7 +287,7 @@ class Dispatcher
 
         $this->getContainer()->store('response', $response);
 
-        $controller->after();
+        $controller->after($request, $response);
 
         return $response;
     }

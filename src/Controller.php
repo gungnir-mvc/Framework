@@ -2,6 +2,7 @@
 namespace Gungnir\Framework;
 
 use \Gungnir\Core\Container;
+use \Gungnir\HTTP\{Request, Response};
 
 /**
  * @package gungnir-mvc\framework
@@ -15,16 +16,21 @@ class Controller
     /**
      * Method that runs before action is invoked.
      *
-     * @return void
+     * @param \Gungnir\HTTP\Request $request The incoming request object
+     * 
+     * @return void|\Gungnir\HTTP\Response
      */
-    public function before() {}
+    public function before(Request $request) {}
 
     /**
      * Method that runs after action is invoked
      *
+     * @param \Gungnir\HTTP\Request  $request  The incoming request object
+     * @param \Gungnir\HTTP\Response $response The generated response object
+     * 
      * @return void
      */
-    public function after() {}
+    public function after(Request $request, Response $response) {}
 
     /**
      * Set container on controller
