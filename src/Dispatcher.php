@@ -239,8 +239,10 @@ class Dispatcher
      */
     private function locateRequest()
     {
-        $request = $this->getRequest($this->getContainer()->get('route'));
-        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locaterequest.request', new GenericEventObject($request));
+        $request   = $this->getRequest($this->getContainer()->get('route'));
+        $eventName = 'gungnir.http.dispatcher.locaterequest.request';
+
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($request));
         $this->getContainer()->store('request', $request);
     }
 
@@ -251,8 +253,10 @@ class Dispatcher
      */
     private function locateAction()
     {
-        $action = $this->getAction($this->getContainer()->get('request'), $this->getContainer()->get('route'));
-        $this->getEventDispatcher()->emit('gungnir.http.dispatcher.locateaction.action', new GenericEventObject($action));
+        $action    = $this->getAction($this->getContainer()->get('request'), $this->getContainer()->get('route'));
+        $eventName = 'gungnir.http.dispatcher.locateaction.action';
+        
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($action));
         $this->getContainer()->store('action', $action);
     }
 
