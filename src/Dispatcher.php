@@ -167,7 +167,7 @@ class Dispatcher
     private function loadApplicationEventListeners()
     {
         $appRoot        = $this->getKernel()->getApplicationPath();
-        $eventListeners = $this->getKernel()->loadFile($appRoot . 'config/EventListeners.php');
+        $eventListeners = require $appRoot . 'config/EventListeners.php';
 
         if (empty($eventListeners) !== true && is_array($eventListeners)) {
             $this->getEventDispatcher()->registerListeners($eventListeners);
