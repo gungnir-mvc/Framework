@@ -279,7 +279,7 @@ class Dispatcher
         $this->getEventDispatcher()->emit($eventName, new GenericEventObject($response));
 
         if (empty($response)) {
-            if (method_exists($controller, $action)) {
+            if (is_callable([$controller, $action])) {
                 $response = call_user_func_array([$controller, $action], [$request]);
             } else {
                 throw new HttpException('Action '.$action.' does not exist.');
