@@ -3,7 +3,6 @@ namespace Gungnir\Framework;
 
 use \Gungnir\Core\Kernel;
 use \Gungnir\Core\Container;
-use \Gungnir\Core\Config;
 use \Gungnir\HTTP\{Request,Response,Route,HttpException};
 use \Gungnir\Event\{EventDispatcher, GenericEventObject};
 
@@ -191,16 +190,23 @@ class Dispatcher
         $controller = $this->getContainer()->get('route')->controller();
         $eventName  = 'gungnir.http.dispatcher.locatecontroller.name';
 
-        $this->getEventDispatcher()->emit($eventName, new GenericEventObject( $controller));
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject([
+            'dispatcher' => $this,
+            'controller' => $controller
+        ]));
         $this->getContainer()->store('controller_name', $controller);
 
         if (class_exists($controller)) {
+
+            /** @var ControllerInterface $controller */
             $controller = new $controller;
-            $controller->setContainer($this->getContainer());
 
             $eventName = 'gungnir.http.dispatcher.locatecontroller.object';
 
-            $this->getEventDispatcher()->emit($eventName, new GenericEventObject($controller));
+            $this->getEventDispatcher()->emit($eventName, new GenericEventObject([
+                'dispatcher' => $this,
+                'controller' => $controller
+            ]));
             $this->getContainer()->store('controller', $controller);
 
         } else {

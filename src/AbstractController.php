@@ -1,17 +1,16 @@
 <?php
 namespace Gungnir\Framework;
 
-use \Gungnir\Core\Container;
 use \Gungnir\HTTP\{Request, Response};
 
 /**
+ * Base class for controllers in framework
+ *
  * @package gungnir-mvc\framework
  * @author Conny Karlsson <connykarlsson9@gmail.com>
  */
 abstract class AbstractController implements ControllerInterface
 {
-    /** @var Container */
-    private $container = null;
 
     /**
      * @inheritDoc
@@ -23,26 +22,4 @@ abstract class AbstractController implements ControllerInterface
      */
     public function after(Request $request, Response $response) {}
 
-    /**
-     * Set container on controller
-     *
-     * @param Container $container The container to bind to the controller
-     *
-     * @return AbstractController
-     */
-    public function setContainer(Container $container)
-    {
-        $this->container = $container;
-        return $this;
-    }
-
-    /**
-     * Get container for controller
-     *
-     * @return Container|Null
-     */
-    public function getContainer()
-    {
-        return $this->container;
-    }
 }
