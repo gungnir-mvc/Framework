@@ -6,45 +6,25 @@ use \Gungnir\Core\Container;
 use \Gungnir\HTTP\{Request,Response,Route,HttpException};
 use \Gungnir\Event\{EventDispatcher, GenericEventObject};
 
-class Dispatcher
+class Dispatcher implements DispatcherInterface
 {
     const CONTAINER_KERNEL_NAME           = 'Application';
     const CONTAINER_EVENT_DISPATCHER_NAME = 'EventDispatcher';
 
+    /** @var Kernel */
+    private $application = null;
+
     /** @var Container **/
     private $container = null;
 
-    /** @var String **/
-    private $root = null;
-
     /**
-     * Constructor
+     * Dispatcher constructor.
      *
-     * @param Container   $container  IoC that dispatcher uses to wrap the application
-     * @param String|null $root       Absolute path to the project root
+     * @param Kernel $application
      */
-    public function __construct(Container $container, String $root = null)
+    public function __construct(Kernel $application)
     {
-        $this->container = $container;
-        $this->root      = $root;
-    }
-
-    /**
-     * Get the Kernel instance from registered container
-     * or creates and injects one into the container and
-     * returns the new instance
-     *
-     * @return Kernel
-     */
-    public function getKernel()
-    {
-        if ($this->getContainer()->has(self::CONTAINER_KERNEL_NAME)) {
-            return $this->getContainer()->get(self::CONTAINER_KERNEL_NAME);
-        }
-
-        $kernel = new Kernel($this->root);
-        $this->getContainer()->store(self::CONTAINER_KERNEL_NAME, $kernel);
-        return $this->getKernel();
+        $this->application = $application;
     }
 
     /**
@@ -72,6 +52,9 @@ class Dispatcher
      */
     public function getContainer()
     {
+        if (empty($this->container)) {
+            $this->container = new Container();
+        }
         return $this->container;
     }
 
@@ -87,25 +70,24 @@ class Dispatcher
     }
 
     /**
-     * Runs the application based on an incoming request.
-     * Parses incoming URL and matches against registered
-     * routes to find which controller and action to be called
-     * which in return creates and sends back a Response object
-     * that get's echoed out.
-     *
-     * @return \Gungnir\HTTP\Response
+     * @inheritDoc
      */
-    public function run() : Response
+    public function dispatch(Request $request): Response
     {
-        Container::instance($this->getContainer());
-
         $this->loadApplicationEventListeners();
-
+        $this->getContainer()->store('request', $request);
         $this->locateRoute();
-        $this->locateRequest();
+
+        // Inject routing parameters to the request
+        $this->getContainer()
+            ->get('request')
+            ->parameters(
+                $this->getContainer()
+                    ->get('route')
+                    ->parameters());
+
         $this->locateController();
         $this->locateAction();
-
         return $this->runController();
     }
 
@@ -166,7 +148,7 @@ class Dispatcher
      */
     private function loadApplicationEventListeners()
     {
-        $appRoot        = $this->getKernel()->getApplicationPath();
+        $appRoot        = $this->application->getApplicationPath();
         $file           = $appRoot . 'config/EventListeners.php';
         $eventListeners = file_exists($file) ? require $file : [];
 
@@ -238,20 +220,6 @@ class Dispatcher
 
         $this->getEventDispatcher()->emit($eventName, new GenericEventObject($route));
         $this->getContainer()->store('route', $route);
-    }
-
-    /**
-     * Locates and stores request object in application container
-     *
-     * @return void
-     */
-    private function locateRequest()
-    {
-        $request   = $this->getRequest($this->getContainer()->get('route'));
-        $eventName = 'gungnir.http.dispatcher.locaterequest.request';
-
-        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($request));
-        $this->getContainer()->store('request', $request);
     }
 
     /**

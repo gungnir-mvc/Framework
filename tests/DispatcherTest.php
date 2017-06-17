@@ -1,9 +1,11 @@
 <?php
 namespace Gungnir\Framework\Tests;
 
+use Gungnir\Core\Kernel;
 use \Gungnir\Framework\Dispatcher;
 use \Gungnir\Core\Container;
 use Gungnir\HTTP\HttpException;
+use Gungnir\HTTP\Request;
 use Gungnir\HTTP\Response;
 use \Gungnir\HTTP\Route;
 use \org\bovigo\vfs\vfsStream;
@@ -62,9 +64,12 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $container = new Container;
-        $container->store('uri', '/testRoute');
-        $dispatcher = new Dispatcher($container);
-        $result = $dispatcher->run();
+        $container->store('uri', '/testRoute/index/index');
+        $application = new Kernel();
+        $dispatcher = new Dispatcher($application);
+        $dispatcher->setContainer($container);
+        $request = new Request($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
+        $result = $dispatcher->dispatch($request);
 
         $this->assertInstanceOf(Response::class, $result);
     }
@@ -77,9 +82,12 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $container = new Container;
-        $container->store('uri', '/testRoute/index/container');
-        $dispatcher = new Dispatcher($container);
-        $result = $dispatcher->run();
+        $container->store('uri', '/testRoute/index/internalAsset');
+        $application = new Kernel();
+        $dispatcher = new Dispatcher($application);
+        $dispatcher->setContainer($container);
+        $request = new Request($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
+        $dispatcher->dispatch($request);
     }
 
     /**
