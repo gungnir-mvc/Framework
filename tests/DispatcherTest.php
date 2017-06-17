@@ -3,6 +3,7 @@ namespace Gungnir\Framework\Tests;
 
 use \Gungnir\Framework\Dispatcher;
 use \Gungnir\Core\Container;
+use Gungnir\HTTP\HttpException;
 use Gungnir\HTTP\Response;
 use \Gungnir\HTTP\Route;
 use \org\bovigo\vfs\vfsStream;
@@ -44,6 +45,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 
         $route = new Route('/testRoute/:controller/:action', [
             'namespace' => '\Gungnir\Test\Controller\\',
+            'actions' => ['getIndex'],
             'defaults' => [
                 'controller' => 'index',
                 'action' => 'index'
@@ -68,6 +70,19 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @test
+     * @expectedException \Gungnir\HTTP\HttpException
+     */
+    public function itValidatesRoutingAction()
+    {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $container = new Container;
+        $container->store('uri', '/testRoute/index/container');
+        $dispatcher = new Dispatcher($container);
+        $result = $dispatcher->run();
+    }
+
+    /**
      * @return string
      */
     private function getTestControllerFileContent()
@@ -76,7 +91,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $contentString .= "namespace Gungnir\Test\Controller;" . PHP_EOL;
         $contentString .= "use \Gungnir\Framework\Controller;" . PHP_EOL;
         $contentString .= "use \Gungnir\HTTP\Response;" . PHP_EOL;
-        $contentString .= "class Index extends Controller { public function getIndex(){ return new Response(); } }" . PHP_EOL;
+        $contentString .= "class Index extends Controller { public function getIndex(){ return new Response(); }}" . PHP_EOL;
         return $contentString;
     }
 }
