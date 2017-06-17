@@ -155,7 +155,8 @@ class Dispatcher
             $method = $_SERVER['REQUEST_METHOD'];
         }
 
-        return strtolower($method) . $route->action();
+        $action = strtolower($method) . $route->action();
+        return ($route->isActionValid($action)) ? $action : '' ;
     }
 
     /**

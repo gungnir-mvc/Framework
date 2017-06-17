@@ -3,6 +3,7 @@ namespace Gungnir\Framework\Tests;
 
 use \Gungnir\Framework\Dispatcher;
 use \Gungnir\Core\Container;
+use Gungnir\HTTP\Response;
 use \Gungnir\HTTP\Route;
 use \org\bovigo\vfs\vfsStream;
 
@@ -10,6 +11,9 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
 {
     private $root = null;
 
+    /**
+     * {@inheritdoc}
+     */
     public function setUp()
     {
         parent::setUp();
@@ -49,16 +53,23 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         Route::add('testRoute', $route);
     }
 
-    public function testItCanBeRun()
+    /**
+     * @test
+     */
+    public function dispatcherReturnsAnResponseWhenRun()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $container = new Container;
         $container->store('uri', '/testRoute');
         $dispatcher = new Dispatcher($container);
         $result = $dispatcher->run();
-        $this->assertInstanceOf(Dispatcher::class, $dispatcher);
+
+        $this->assertInstanceOf(Response::class, $result);
     }
 
+    /**
+     * @return string
+     */
     private function getTestControllerFileContent()
     {
         $contentString  = "<?php" . PHP_EOL;
