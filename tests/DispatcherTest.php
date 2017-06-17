@@ -1,7 +1,7 @@
 <?php
 namespace Gungnir\Framework\Tests;
 
-use Gungnir\Core\Kernel;
+use Gungnir\Core\Application;
 use \Gungnir\Framework\Dispatcher;
 use \Gungnir\Core\Container;
 use Gungnir\HTTP\HttpException;
@@ -65,7 +65,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $container = new Container;
         $container->store('uri', '/testRoute/index/index');
-        $application = new Kernel();
+        $application = new Application();
         $dispatcher = new Dispatcher($application);
         $dispatcher->setContainer($container);
         $request = new Request($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
@@ -83,7 +83,7 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $container = new Container;
         $container->store('uri', '/testRoute/index/internalAsset');
-        $application = new Kernel();
+        $application = new Application();
         $dispatcher = new Dispatcher($application);
         $dispatcher->setContainer($container);
         $request = new Request($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);

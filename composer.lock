@@ -12,13 +12,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/gungnir-mvc/Core.git",
-                "reference": "1757ab73e774a75b72b4d532a66993d1773c734d"
+                "reference": "037a0efc9bf1032ec77da105ff1bcba75149eaa6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gungnir-mvc/Core/zipball/1757ab73e774a75b72b4d532a66993d1773c734d",
-                "reference": "1757ab73e774a75b72b4d532a66993d1773c734d",
+                "url": "https://api.github.com/repos/gungnir-mvc/Core/zipball/037a0efc9bf1032ec77da105ff1bcba75149eaa6",
+                "reference": "037a0efc9bf1032ec77da105ff1bcba75149eaa6",
                 "shasum": ""
+            },
+            "require": {
+                "gungnir-mvc/event": "dev-master"
             },
             "require-dev": {
                 "mikey179/vfsstream": "~1.6",
@@ -39,7 +42,7 @@
                 "source": "https://github.com/gungnir-mvc/Core/tree/master",
                 "issues": "https://github.com/gungnir-mvc/Core/issues"
             },
-            "time": "2017-05-26 13:47:39"
+            "time": "2017-06-17 10:40:46"
         },
         {
             "name": "gungnir-mvc/event",

@@ -1,8 +1,10 @@
 <?php
 namespace Gungnir\Framework;
 
-use \Gungnir\Core\Kernel;
+use \Gungnir\Core\Application;
+use Gungnir\Core\ApplicationInterface;
 use \Gungnir\Core\Container;
+use Gungnir\Core\ContainerInterface;
 use \Gungnir\HTTP\{Request,Response,Route,HttpException};
 use \Gungnir\Event\{EventDispatcher, GenericEventObject};
 
@@ -11,7 +13,7 @@ class Dispatcher implements DispatcherInterface
     const CONTAINER_KERNEL_NAME           = 'Application';
     const CONTAINER_EVENT_DISPATCHER_NAME = 'EventDispatcher';
 
-    /** @var Kernel */
+    /** @var Application */
     private $application = null;
 
     /** @var Container **/
@@ -20,17 +22,17 @@ class Dispatcher implements DispatcherInterface
     /**
      * Dispatcher constructor.
      *
-     * @param Kernel $application
+     * @param ApplicationInterface $application
      */
-    public function __construct(Kernel $application)
+    public function __construct(ApplicationInterface $application)
     {
         $this->application = $application;
     }
 
     /**
      * Get the EventDispatcher instance from registered container
-     * or creates and injects one into the container and
-     * returns the new instance
+     * or pulls it from the application level and injects one into the container and
+     * returns that instance.
      *
      * @return EventDispatcher
      */
@@ -40,17 +42,17 @@ class Dispatcher implements DispatcherInterface
             return $this->getContainer()->get(self::CONTAINER_EVENT_DISPATCHER_NAME);
         }
 
-        $eventDispatcher = new EventDispatcher;
-        $this->getContainer()->store(self::CONTAINER_EVENT_DISPATCHER_NAME, $eventDispatcher);
+        $this->getContainer()->store(
+            self::CONTAINER_EVENT_DISPATCHER_NAME,
+                $this->application->getEventDispatcher()
+        );
         return $this->getEventDispatcher();
     }
 
     /**
-     * Get the container from dispatcher
-     *
-     * @return Container
+     * {@inheritdoc}
      */
-    public function getContainer()
+    public function getContainer(): ContainerInterface
     {
         if (empty($this->container)) {
             $this->container = new Container();
@@ -59,11 +61,9 @@ class Dispatcher implements DispatcherInterface
     }
 
     /**
-     * Set container to dispatcher
-     *
-     * @return Dispatcher
+     * {@inheritdoc}
      */
-    public function setContainer(Container $container)
+    public function setContainer(ContainerInterface $container): DispatcherInterface
     {
         $this->container = $container;
         return $this;
@@ -74,21 +74,42 @@ class Dispatcher implements DispatcherInterface
      */
     public function dispatch(Request $request): Response
     {
-        $this->loadApplicationEventListeners();
+        // Fetch and store route
+        $uri   = $this->getContainer()->has('uri') ? $this->getContainer()->get('uri') : null;
+        $route = $this->getRoute($uri);
+        $this->getContainer()->store('route', $route);
+
+        // If route have any parameters then re-initialize the request with existing data
+        if (empty($route->parameters()) !== true) {
+            $request->initialize(
+                $request->query()->parameters(),
+                $request->request()->parameters(),
+                $route->parameters(),
+                $request->cookies()->parameters(),
+                $request->files()->parameters(),
+                $request->server()->parameters()
+            );
+        }
+
         $this->getContainer()->store('request', $request);
-        $this->locateRoute();
 
-        // Inject routing parameters to the request
-        $this->getContainer()
-            ->get('request')
-            ->parameters(
-                $this->getContainer()
-                    ->get('route')
-                    ->parameters());
+        // Fetch and store controller
+        $controller = $this->getController($route);
+        $this->getContainer()->store('controller', $controller);
 
-        $this->locateController();
-        $this->locateAction();
-        return $this->runController();
+        // Fetch and store action
+        $action = $this->getAction($request, $route);
+        $this->getEventDispatcher()->emit(
+            'gungnir.http.dispatcher.locateaction.action',
+                new GenericEventObject($action)
+        );
+        $this->getContainer()->store('action', $action);
+
+        // Execute controller with action
+        return $this->runController(
+            $this->getContainer()->get('controller'),
+            $this->getContainer()->get('action')
+        );
     }
 
     /**
@@ -101,8 +122,21 @@ class Dispatcher implements DispatcherInterface
      */
     public function getRoute(String $uri = null) : Route
     {
+        $eventName = 'gungnir.http.dispatcher.locateroute.uri';
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($uri));
+
         $uri = $uri ?? $_SERVER['REQUEST_URI'];
-        return Route::find($uri);
+
+        $route = Route::find($uri);
+
+        if (empty($route)) {
+            throw new HttpException('No matching route was found for: ' . $uri);
+        }
+
+        $eventName = 'gungnir.http.dispatcher.locateroute.route';
+        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($route));
+
+        return $route;
     }
 
     /**
@@ -141,35 +175,15 @@ class Dispatcher implements DispatcherInterface
     }
 
     /**
-     * Loads event listeners into event dispatcher from
-     * application configuration scope
-     * 
-     * @return void
-     */
-    private function loadApplicationEventListeners()
-    {
-        $appRoot        = $this->application->getApplicationPath();
-        $file           = $appRoot . 'config/EventListeners.php';
-        $eventListeners = file_exists($file) ? require $file : [];
-
-        if (empty($eventListeners) !== true && is_array($eventListeners)) {
-            $this->getEventDispatcher()->registerListeners($eventListeners);
-        }
-
-        $eventName = 'gungnir.framework.loadapplicationeventlisteners.done';
-        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($this));
-    }
-
-    /**
      * Creates a controller object and stores it inside
      * the application container
      *
      * @throws HttpException
-     * @return void
+     * @return ControllerInterface
      */
-    private function locateController()
+    private function getController(Route $route)
     {
-        $controller = $this->getContainer()->get('route')->controller();
+        $controller = $route->controller();
         $eventName  = 'gungnir.http.dispatcher.locatecontroller.name';
 
         $this->getEventDispatcher()->emit($eventName, new GenericEventObject([
@@ -189,64 +203,24 @@ class Dispatcher implements DispatcherInterface
                 'dispatcher' => $this,
                 'controller' => $controller
             ]));
-            $this->getContainer()->store('controller', $controller);
 
         } else {
             throw new HttpException('Controller '.$controller.' does not exist.');
         }
-    }
-
-    /**
-     * Locates route and stores it inside application container
-     *
-     * @throws HttpException
-     *
-     * @return void
-     */
-    private function locateRoute()
-    {
-        $uri       = $this->getContainer()->has('uri') ? $this->getContainer()->get('uri') : null;
-        $eventName = 'gungnir.http.dispatcher.locateroute.uri';
-
-        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($uri));
-
-        $route = $this->getRoute($uri);
-
-        if (empty($route)) {
-            throw new HttpException('No matching route was found for: ' . $uri);
-        }
-
-        $eventName = 'gungnir.http.dispatcher.locateroute.route';
-
-        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($route));
-        $this->getContainer()->store('route', $route);
-    }
-
-    /**
-     * Locates and stores action to be called inside application container
-     *
-     * @return void
-     */
-    private function locateAction()
-    {
-        $action    = $this->getAction($this->getContainer()->get('request'), $this->getContainer()->get('route'));
-        $eventName = 'gungnir.http.dispatcher.locateaction.action';
-        
-        $this->getEventDispatcher()->emit($eventName, new GenericEventObject($action));
-        $this->getContainer()->store('action', $action);
+        return $controller;
     }
 
     /**
      * Executes action for controller for current request
      *
+     * @param ControllerInterface $controller
+     * @param string $action
+     *
+     * @return Response
      * @throws HttpException
-     * 
-     * @return \Gungnir\HTTP\Response
      */
-    private function runController() : Response
+    private function runController(ControllerInterface $controller, string $action) : Response
     {
-        $controller = $this->getContainer()->get('controller');
-        $action     = $this->getContainer()->get('action');
         $request    = $this->getContainer()->get('request');
         $response   = $controller->before($request);
 
