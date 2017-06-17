@@ -8,7 +8,7 @@ use \Gungnir\HTTP\{Request, Response};
  * @package gungnir-mvc\framework
  * @author Conny Karlsson <connykarlsson9@gmail.com>
  */
-abstract class Controller implements ControllerInterface
+abstract class AbstractController implements ControllerInterface
 {
     /** @var Container */
     private $container = null;
@@ -28,7 +28,7 @@ abstract class Controller implements ControllerInterface
      *
      * @param Container $container The container to bind to the controller
      *
-     * @return Controller
+     * @return AbstractController
      */
     public function setContainer(Container $container)
     {

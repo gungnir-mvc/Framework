@@ -89,9 +89,9 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
     {
         $contentString  = "<?php" . PHP_EOL;
         $contentString .= "namespace Gungnir\Test\Controller;" . PHP_EOL;
-        $contentString .= "use \Gungnir\Framework\Controller;" . PHP_EOL;
+        $contentString .= "use \Gungnir\Framework\AbstractController;" . PHP_EOL;
         $contentString .= "use \Gungnir\HTTP\Response;" . PHP_EOL;
-        $contentString .= "class Index extends Controller { public function getIndex(){ return new Response(); }}" . PHP_EOL;
+        $contentString .= "class Index extends AbstractController { public function getIndex(){ return new Response(); }}" . PHP_EOL;
         return $contentString;
     }
 }
