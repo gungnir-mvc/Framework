@@ -95,7 +95,7 @@ class View
     /**
      * Get all globally registered view variables
      *
-     * @return Array
+     * @return array
      */
     public static function globals()
     {
