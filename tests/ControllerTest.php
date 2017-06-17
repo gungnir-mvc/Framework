@@ -16,7 +16,14 @@ class ControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testItCanBeInstantiated()
     {
-        $controller = new Controller;
+        $controller = new TestableController();
         $this->assertInstanceOf(Controller::class, $controller);
     }
 }
+
+/**
+ * Only purpose of this class is to extend abstract base controller so it can be tested.
+ *
+ * @package Gungnir\Framework\Tests
+ */
+class TestableController extends Controller {}

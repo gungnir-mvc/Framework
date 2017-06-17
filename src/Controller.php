@@ -8,27 +8,18 @@ use \Gungnir\HTTP\{Request, Response};
  * @package gungnir-mvc\framework
  * @author Conny Karlsson <connykarlsson9@gmail.com>
  */
-class Controller
+abstract class Controller implements ControllerInterface
 {
     /** @var Container */
     private $container = null;
 
     /**
-     * Method that runs before action is invoked.
-     *
-     * @param \Gungnir\HTTP\Request $request The incoming request object
-     * 
-     * @return void|\Gungnir\HTTP\Response
+     * @inheritDoc
      */
     public function before(Request $request) {}
 
     /**
-     * Method that runs after action is invoked
-     *
-     * @param \Gungnir\HTTP\Request  $request  The incoming request object
-     * @param \Gungnir\HTTP\Response $response The generated response object
-     * 
-     * @return void
+     * @inheritDoc
      */
     public function after(Request $request, Response $response) {}
 
