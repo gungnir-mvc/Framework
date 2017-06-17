@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/gungnir-mvc/Core.git",
-                "reference": "037a0efc9bf1032ec77da105ff1bcba75149eaa6"
+                "reference": "aaf43be81d5377158dbd233d6452bd25b11bbcf2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gungnir-mvc/Core/zipball/037a0efc9bf1032ec77da105ff1bcba75149eaa6",
-                "reference": "037a0efc9bf1032ec77da105ff1bcba75149eaa6",
+                "url": "https://api.github.com/repos/gungnir-mvc/Core/zipball/aaf43be81d5377158dbd233d6452bd25b11bbcf2",
+                "reference": "aaf43be81d5377158dbd233d6452bd25b11bbcf2",
                 "shasum": ""
             },
             "require": {
@@ -42,7 +42,7 @@
                 "source": "https://github.com/gungnir-mvc/Core/tree/master",
                 "issues": "https://github.com/gungnir-mvc/Core/issues"
             },
-            "time": "2017-06-17 10:40:46"
+            "time": "2017-06-17 13:56:26"
         },
         {
             "name": "gungnir-mvc/event",
@@ -50,12 +50,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/gungnir-mvc/Event.git",
-                "reference": "9a04337c1b66906bfe8e1442c957b9928fc19237"
+                "reference": "7bd733936b4dc19c99f8e7922a248aa0644aea5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gungnir-mvc/Event/zipball/9a04337c1b66906bfe8e1442c957b9928fc19237",
-                "reference": "9a04337c1b66906bfe8e1442c957b9928fc19237",
+                "url": "https://api.github.com/repos/gungnir-mvc/Event/zipball/7bd733936b4dc19c99f8e7922a248aa0644aea5b",
+                "reference": "7bd733936b4dc19c99f8e7922a248aa0644aea5b",
                 "shasum": ""
             },
             "require-dev": {
@@ -76,7 +76,7 @@
                 "source": "https://github.com/gungnir-mvc/Event/tree/master",
                 "issues": "https://github.com/gungnir-mvc/Event/issues"
             },
-            "time": "2016-10-27 21:06:03"
+            "time": "2017-06-17 13:13:08"
         },
         {
             "name": "gungnir-mvc/http",

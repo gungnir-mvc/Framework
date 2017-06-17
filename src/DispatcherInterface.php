@@ -16,14 +16,6 @@ interface DispatcherInterface
     public function getContainer(): ContainerInterface;
 
     /**
-     * Set the container to dispatcher
-     *
-     * @param ContainerInterface $container
-     * @return DispatcherInterface
-     */
-    public function setContainer(ContainerInterface $container): DispatcherInterface;
-
-    /**
      * Dispatches a request through application and returns an
      * response
      *

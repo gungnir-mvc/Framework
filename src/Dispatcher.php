@@ -16,9 +16,6 @@ class Dispatcher implements DispatcherInterface
     /** @var Application */
     private $application = null;
 
-    /** @var Container **/
-    private $container = null;
-
     /**
      * Dispatcher constructor.
      *
@@ -54,19 +51,7 @@ class Dispatcher implements DispatcherInterface
      */
     public function getContainer(): ContainerInterface
     {
-        if (empty($this->container)) {
-            $this->container = new Container();
-        }
-        return $this->container;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setContainer(ContainerInterface $container): DispatcherInterface
-    {
-        $this->container = $container;
-        return $this;
+        return $this->application->getContainer();
     }
 
     /**
@@ -195,7 +180,7 @@ class Dispatcher implements DispatcherInterface
         if (class_exists($controller)) {
 
             /** @var ControllerInterface $controller */
-            $controller = new $controller;
+            $controller = new $controller($this->application);
 
             $eventName = 'gungnir.http.dispatcher.locatecontroller.object';
 

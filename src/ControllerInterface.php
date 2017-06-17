@@ -1,11 +1,19 @@
 <?php
 namespace Gungnir\Framework;
 
+use Gungnir\Core\ApplicationInterface;
 use Gungnir\HTTP\Request;
 use Gungnir\HTTP\Response;
 
 interface ControllerInterface
 {
+    /**
+     * Get current application instance
+     *
+     * @return ApplicationInterface
+     */
+    public function getApplication(): ApplicationInterface;
+
     /**
      * Method that runs before action is invoked. If a response is returned from
      * the before method. Primary action will note be invoked.

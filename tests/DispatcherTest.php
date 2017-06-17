@@ -66,8 +66,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $container = new Container;
         $container->store('uri', '/testRoute/index/index');
         $application = new Application();
+        $application->setContainer($container);
         $dispatcher = new Dispatcher($application);
-        $dispatcher->setContainer($container);
         $request = new Request($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
         $result = $dispatcher->dispatch($request);
 
@@ -84,8 +84,8 @@ class DispatcherTest extends \PHPUnit_Framework_TestCase
         $container = new Container;
         $container->store('uri', '/testRoute/index/internalAsset');
         $application = new Application();
+        $application->setContainer($container);
         $dispatcher = new Dispatcher($application);
-        $dispatcher->setContainer($container);
         $request = new Request($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
         $dispatcher->dispatch($request);
     }

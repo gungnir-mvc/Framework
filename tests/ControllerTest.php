@@ -1,6 +1,7 @@
 <?php
 namespace Gungnir\Framework\Tests;
 
+use Gungnir\Core\Application;
 use \Gungnir\Framework\AbstractController;
 
 class ControllerTest extends \PHPUnit_Framework_TestCase
@@ -16,7 +17,7 @@ class ControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testItCanBeInstantiated()
     {
-        $controller = new TestableAbstractController();
+        $controller = new TestableAbstractController(new Application());
         $this->assertInstanceOf(AbstractController::class, $controller);
     }
 }
